@@ -1,41 +1,77 @@
 import { useEffect, useState } from "react";
 import { TodoProvider } from "./context";
 import { TodoForm, TodoItem } from "./components";
+import axios from "axios";
+import MAIN_BACKEND_URL from "./config/api";
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const addTodo = (todo) => {
-    setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
-  };
-  const updateTodo = (id, updatedTodo) => {
-    setTodos((prev) =>
-      prev.map((todo) => (todo.id === id ? updatedTodo : todo))
-    );
-  };
-  const deleteTodo = (id) => {
-    setTodos((prev) => prev.filter((prevTodo) => prevTodo.id !== id));
-  };
-  const toggleComplete = (id) => {
-    setTodos((prev) =>
-      prev.map((prevTodo) =>
-        prevTodo.id === id
-          ? { ...prevTodo, completed: !prevTodo.completed }
-          : prevTodo
-      )
-    );
-  };
-
-  useEffect(() => {
-    const todos = JSON.parse(localStorage.getItem("todos"));
-
-    if (todos && todos.length > 0) {
-      setTodos(todos);
+  const [ todos, setTodos ] = useState([]);
+  
+  
+  const fetchAllTodos =  async () => {
+    try {
+      const response = await axios.get(MAIN_BACKEND_URL + "todos/")
+      const data = await response.data;
+      console.log(data)
+      setTodos([...data.todos].reverse()); // Create a copy of the array before reversing it
+      // setTodos(data.todos)
+    } catch (error) {
+      console.log(error)
     }
-  }, []);
+  }
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    fetchAllTodos()
+  }, [])
+  
+
+  const addTodo = async (todo) => {
+    try {
+      await axios.post(MAIN_BACKEND_URL + "todos/", {
+        text: todo
+      }) 
+    } catch (error) {
+      console.log(error)
+    }
+    fetchAllTodos()
+    // setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
+  };
+  const updateTodo = async (id, updatedTodo) => {
+   try {
+       await axios.put(MAIN_BACKEND_URL + "todos/", {
+        id: id,
+        text: updatedTodo
+      }) 
+    } catch (error) {
+      console.log(error)
+    }
+    fetchAllTodos()
+  };
+  const deleteTodo = async (id) => {
+    console.log(id)
+     try {
+      await axios.delete(MAIN_BACKEND_URL + "todos/", {
+        data : {id: id}
+      }) 
+    } catch (error) {
+      console.log(error)
+    }
+    fetchAllTodos()
+
+  };
+  const toggleComplete = async (id) => {
+     try {
+       await axios.put(MAIN_BACKEND_URL + "todos/", {
+        id: id,
+        completed: true
+      }) 
+    } catch (error) {
+      console.log(error)
+    }
+    fetchAllTodos()
+  };
+
+  
 console.log(todos)
   return (
     <TodoProvider
