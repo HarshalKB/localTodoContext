@@ -1,23 +1,24 @@
 /* eslint-disable react/prop-types */
 import { useTodo } from "../context/ToDoContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function TodoItem({ todo }) {
   const [isTodoEditable, setIsTodoEditable] = useState(false);
-  const [todoMsg, setTodoMsg] = useState(todo.todo);
+  const [todoMsg, setTodoMsg] = useState(todo.text);
   const { updateTodo, deleteTodo, toggleComplete } = useTodo();
-
+  console.log(todo);
   const editTodo = () => {
     if (!todoMsg.trim()) {
       alert("Todo cannot be empty");
       return;
     }
-    updateTodo(todo.id, { ...todo, todo: todoMsg });
+    updateTodo(todo.id, todoMsg);
     setIsTodoEditable(false);
   };
   const toggleCompleted = () => {
     toggleComplete(todo.id);
   };
+
 
   return (
     <div
@@ -29,6 +30,7 @@ function TodoItem({ todo }) {
         type="checkbox"
         className="cursor-pointer"
         checked={todo.completed}
+        disabled={todo.completed}
         onChange={toggleCompleted}
       />
       <input

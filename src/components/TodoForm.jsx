@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useTodo } from "../context";
+import axios from "axios";
+import MAIN_BACKEND_URL from "../config/api";
 
 function TodoForm() {
   const [todo, setTodo] = useState("");
@@ -7,9 +9,11 @@ function TodoForm() {
   const add = (e) => {
     e.preventDefault();
     if (!todo) return;
-    addTodo({ todo, completed: false });
+    addTodo(todo);
     setTodo("");
   };
+
+
   return (
     <form onSubmit={add} className="flex">
       <input
